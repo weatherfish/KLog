@@ -2,67 +2,57 @@ package com.socks.library.klog;
 
 import android.util.Log;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.SAXReader;
-import org.dom4j.io.XMLWriter;
 
-import java.io.IOException;
+import com.socks.library.KLog;
+import com.socks.library.Util;
+
 import java.io.StringReader;
 import java.io.StringWriter;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * Created by zhaokaiqiang on 15/11/18.
  */
-public class XmlLog extends BaseLog{
+public class XmlLog {
 
-    public static void printXml(String tag, String xml,String headString) {
+    public static void printXml(String tag, String xml, String headString) {
 
         if (xml != null) {
             xml = XmlLog.formatXML(xml);
             xml = headString + "\n" + xml;
         } else {
-            xml = headString + NULL_TIPS;
+            xml = headString + KLog.NULL_TIPS;
         }
 
-        printLine(tag, true);
-        String[] lines = xml.split(LINE_SEPARATOR);
+        Util.printLine(tag, true);
+        String[] lines = xml.split(KLog.LINE_SEPARATOR);
         for (String line : lines) {
-            if (!isEmpty(line)) {
+            if (!Util.isEmpty(line)) {
                 Log.d(tag, "║ " + line);
             }
         }
-        printLine(tag, false);
+        Util.printLine(tag, false);
     }
 
     public static String formatXML(String inputXML) {
-        XMLWriter writer = null;
-        String requestXML = null;
         try {
-            SAXReader reader = new SAXReader();
-            Document document = reader.read(new StringReader(inputXML));
-            StringWriter stringWriter = new StringWriter();
-            OutputFormat format = new OutputFormat(" ", true);
-            writer = new XMLWriter(stringWriter, format);
-            writer.write(document);
-            writer.flush();
-            requestXML = stringWriter.getBuffer().toString();
-        } catch (IOException e) {
+            Source xmlInput = new StreamSource(new StringReader(inputXML));
+            StreamResult xmlOutput = new StreamResult(new StringWriter());
+            Transformer transformer = TransformerFactory.newInstance().newTransformer();
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            transformer.transform(xmlInput, xmlOutput);
+            return xmlOutput.getWriter().toString().replaceFirst(">", ">\n");
+        } catch (Exception e) {
+            e.printStackTrace();
             return inputXML;
-        } catch (DocumentException e) {
-            return inputXML;
-        } finally {
-            if (writer != null) {
-                try {
-                    writer.close();
-                } catch (IOException e) {
-                    return inputXML;
-                }
-            }
         }
-
-        return requestXML;
     }
 
 }

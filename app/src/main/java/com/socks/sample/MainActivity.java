@@ -1,10 +1,14 @@
 package com.socks.sample;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,14 +30,34 @@ public class MainActivity extends AppCompatActivity {
     private static String STRING_LONG;
     private AsyncHttpClient httpClient;
 
+    private static Handler handler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+            KLog.d("handleMessage");
+            handler.sendEmptyMessageDelayed(0, 3000);
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        init();
+
+        initView();
+        initData();
+        handler.sendEmptyMessageDelayed(0, 3000);
     }
 
-    private void init() {
+    private void initView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolBar);
+        if (toolbar != null) {
+            toolbar.setTitleTextColor(Color.WHITE);
+            setSupportActionBar(toolbar);
+        }
+    }
+
+    private void initData() {
         httpClient = new AsyncHttpClient();
         JSON_LONG = getResources().getString(R.string.json_long);
         JSON = getResources().getString(R.string.json);
@@ -47,6 +71,15 @@ public class MainActivity extends AppCompatActivity {
         KLog.w();
         KLog.e();
         KLog.a();
+    }
+
+    public void logWithNull(View view) {
+        KLog.v(null);
+        KLog.d(null);
+        KLog.i(null);
+        KLog.w(null);
+        KLog.e(null);
+        KLog.a(null);
     }
 
     public void logWithMsg(View view) {
@@ -80,14 +113,6 @@ public class MainActivity extends AppCompatActivity {
         KLog.a(TAG, LOG_MSG, "params1", "params2", this);
     }
 
-    public void logWithNull(View view) {
-        KLog.v(null);
-        KLog.d(null);
-        KLog.i(null);
-        KLog.w(null);
-        KLog.e(null);
-        KLog.a(null);
-    }
 
     public void logWithJson(View view) {
         KLog.json("12345");
@@ -146,7 +171,7 @@ public class MainActivity extends AppCompatActivity {
             case R.id.action_github:
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ZhaoKaiQiang/KLog")));
                 break;
-            case R.id.action_csdn:
+            case R.id.action_blog:
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://blog.csdn.net/zhaokaiqiang1992")));
                 break;
         }

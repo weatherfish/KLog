@@ -1,5 +1,9 @@
 package com.socks.library;
 
+
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+
 import com.socks.library.klog.BaseLog;
 import com.socks.library.klog.FileLog;
 import com.socks.library.klog.JsonLog;
@@ -21,15 +25,45 @@ import java.io.File;
  *         15/11/18 扩展功能，增加对XML的支持，修复BUG
  *         15/12/8  扩展功能，添加对任意参数的支持
  *         15/12/11 扩展功能，增加对无限长字符串支持
+ *         16/6/13  扩展功能，添加对自定义全局Tag的支持
  */
-public class KLog implements Constant {
+public class KLog {
 
-    private static boolean IS_SHOW_LOG = true;
+    public static final String LINE_SEPARATOR = System.getProperty("line.separator");
+    public static final String NULL_TIPS = "Log with null object";
+
+    private static final String DEFAULT_MESSAGE = "execute";
     private static final String PARAM = "Param";
     private static final String NULL = "null";
+    private static final String TAG_DEFAULT = "KLog";
+    private static final String SUFFIX = ".java";
+
+    public static final int JSON_INDENT = 4;
+    public static final int V = 0x1;
+
+    public static final int D = 0x2;
+    public static final int I = 0x3;
+    public static final int W = 0x4;
+    public static final int E = 0x5;
+    public static final int A = 0x6;
+
+    private static final int JSON = 0x7;
+    private static final int XML = 0x8;
+
+    private static final int STACK_TRACE_INDEX = 5;
+
+    private static String mGlobalTag;
+    private static boolean mIsGlobalTagEmpty = true;
+    private static boolean IS_SHOW_LOG = true;
 
     public static void init(boolean isShowLog) {
         IS_SHOW_LOG = isShowLog;
+    }
+
+    public static void init(boolean isShowLog, @Nullable String tag) {
+        IS_SHOW_LOG = isShowLog;
+        mGlobalTag = tag;
+        mIsGlobalTagEmpty = TextUtils.isEmpty(mGlobalTag);
     }
 
     public static void v() {
@@ -179,17 +213,37 @@ public class KLog implements Constant {
     private static String[] wrapperContent(String tagStr, Object... objects) {
 
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        int index = 5;
-        String className = stackTrace[index].getFileName();
-        String methodName = stackTrace[index].getMethodName();
-        int lineNumber = stackTrace[index].getLineNumber();
+
+        StackTraceElement targetElement = stackTrace[STACK_TRACE_INDEX];
+        String className = targetElement.getClassName();
+        String[] classNameInfo = className.split("\\.");
+        if (classNameInfo.length > 0) {
+            className = classNameInfo[classNameInfo.length - 1] + SUFFIX;
+        }
+
+        if (className.contains("$")) {
+            className = className.split("\\$")[0] + SUFFIX;
+        }
+
+        String methodName = targetElement.getMethodName();
+        int lineNumber = targetElement.getLineNumber();
+
+        if (lineNumber < 0) {
+            lineNumber = 0;
+        }
+
         String methodNameShort = methodName.substring(0, 1).toUpperCase() + methodName.substring(1);
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("[ (").append(className).append(":").append(lineNumber).append(")#").append(methodNameShort).append(" ] ");
 
         String tag = (tagStr == null ? className : tagStr);
+
+        if (mIsGlobalTagEmpty && TextUtils.isEmpty(tag)) {
+            tag = TAG_DEFAULT;
+        } else if (!mIsGlobalTagEmpty) {
+            tag = mGlobalTag;
+        }
+
         String msg = (objects == null) ? NULL_TIPS : getObjectsString(objects);
-        String headString = stringBuilder.toString();
+        String headString = "[ (" + className + ":" + lineNumber + ")#" + methodNameShort + " ] ";
 
         return new String[]{tag, msg, headString};
     }

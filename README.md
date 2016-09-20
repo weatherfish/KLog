@@ -6,17 +6,19 @@ This is a useful log tool for Android
 
 Android LogCat 工具类，目前功能：
 
-- 无参数打印
-- 打印所在行号
-- 打印所在函数
-- AS点击方法名自动跳转
-- Json格式自动解析打印
-- xml格式自定解析打印
-- Log信息存储到文件(6.0以上需要动态申请存储空间权限)
-- 变长参数打印
-- 无logcat最多4000字符打印限制
+- 支持显示行号
+- 支持显示Log所在函数名称
+- 支持无Tag快捷打印
+- 支持在Android Studio开发IDE中，点击函数名称，跳转至Log所在位置
+- 支持JSON字符串解析打印
+- 支持XML字符串解析打印
+- 支持Log信息存储到文件
+- 依赖库非常小，只有不到10K
+- 支持无限长字符串打印，无Logcat4000字符限制
+- 支持变长参数，任意个数打印参数
+- 支持设置全局Tag
 
-中文文档请戳[这里](http://blog.csdn.net/zhaokaiqiang1992/article/details/49837627)。
+中文文档请戳[这里](http://kaizige.vip/2016/06/13/klog/)。
 
 ---
 
@@ -25,9 +27,6 @@ Android LogCat 工具类，目前功能：
 - Can use KLog.d() with no tag
 - Print log info with line number and method name
 - Jump to the position where the log is invoked, by click in the Android Studio Logcat
-
-##Update
-
 - Add support for Long JSON String
 - KLog.file() could save the log to file
 - Add support for xml format string
@@ -37,66 +36,16 @@ Android LogCat 工具类，目前功能：
 
 ![](https://github.com/ZhaoKaiQiang/KLog/blob/master/image/demo.gif)
 
-###KLog.d()
-
-Use this method , you can get a log like follwing，default tag is current class name
-
-![](http://i13.tietuku.com/6eac96ebfbea82cb.png)
-
-###KLog.d(String)
-
-you can print a String with this method ,default tag is current class name
-![](http://i13.tietuku.com/95871d0388a27777.png)
-
-###KLog.d(Tag,String)
-
-you can set tag by youself , the result is as bollow 
-![](http://i13.tietuku.com/f0286fa45f975346.png)
-
-###KLog.json(String)
-
-you can print a String with json format ,and it will be formated as following
-![](http://i13.tietuku.com/767fa81ad27c8f9f.png)
-
-###KLog.json(Tag,String)
-
-as same as above , but with a tag whitch are set by yourself
-![](http://i13.tietuku.com/bc9714547a4f50fe.png)
-
-###KLog.file()
-
-you can save the log string in to file !
-
-```
- KLog.file(TAG, Environment.getExternalStorageDirectory(), "test.txt", JSON_LONG);
-```
-
-![](https://github.com/ZhaoKaiQiang/KLog/blob/master/image/file.png)
-
-###KLog.xml()
-
-print xml format string in logcat
-
-```
- KLog.xml(XML);
-```
-
-![](https://github.com/ZhaoKaiQiang/KLog/blob/master/image/xml.png)
-
 ##JCenter
 
 ```
 dependencies {
-    compile 'com.github.zhaokaiqiang.klog:library:1.2.0'
+    compile 'com.github.zhaokaiqiang.klog:library:1.5.0'
 }
 ```
 ##Eclipse
 
-You need add klog.jar into your project ,because the klog dependences on dom4j，so you alse need add the dom4j-2.0.0-RC1.jar to your project . The jar file is in the library's libs .
-
-##Notice
-
-If you don't need the method -- KLog.xml() ，you can delete the method about it ,so that you can decrease the almost size of this library.
+You need add klog.jar into your project libs
 
 ##License
 
@@ -118,4 +67,4 @@ limitations under the License.
 
 ##About me
 - [Android Developer](http://weibo.com/zhaokaiqiang1992)
-- [CSDN Blog](http://blog.csdn.net/zhaokaiqiang1992)
+- [Blog](http://kaizige.vip/)
